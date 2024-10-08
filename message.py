@@ -1,0 +1,4 @@
+START_MESSAGE = "Привет! Пришли сюда ссылку на расписание своей группы"
+SIBSAU_LINK_TEMPLATE = "https://timetable.pallada.sibsau.ru/timetable/"
+LINK_GET = "Отлично! Теперь ты можешь получать расписание. Чтобы изменить группу просто пришли новую ссылку."
+LINK_PROBLEM = "Кривая ссылка, дружище :("
