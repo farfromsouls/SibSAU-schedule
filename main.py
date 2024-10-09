@@ -1,10 +1,16 @@
 import asyncio
 import logging
 import sqlite3
+import requests
+import lxml
+import re
 
 from data import *
 from cfg.secret import *
 from message import *
+from scrap import *
+
+from bs4 import BeautifulSoup
 
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters.command import Command
@@ -31,7 +37,8 @@ async def handler(message: types.Message):
 
     if message.text.startswith(SIBSAU_LINK_TEMPLATE):
         await bot.send_message(message.from_user.id, LINK_GET)
-        await create(conn, cursor, message.from_user.id, message.text)
+        await crt_upd(conn, cursor, message.from_user.id, message.text)
+        await bot.send_message(message.from_user.id, scrap('group/13925'))
     else:
         await bot.send_message(message.from_user.id, LINK_PROBLEM)
 

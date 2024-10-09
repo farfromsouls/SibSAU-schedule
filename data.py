@@ -1,5 +1,4 @@
-async def create(conn, cursor, tg_id, link):
-    import sqlite3
+async def crt_upd(conn, cursor, tg_id, link):
 
     link_id = link.split("/")
     link_id = f'{link_id[-2]}/{link_id[-1]}'
