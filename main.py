@@ -34,11 +34,15 @@ async def cmd_start(message: types.Message):
 @dp.message()
 async def handler(message: types.Message):
 
+    # updeate/create link to the user
     if message.text.startswith(SIBSAU_LINK_TEMPLATE):
         await bot.send_message(message.from_user.id, LINK_GET)
         await crt_upd(sql, message.from_user.id, message.text)
     else:
         await bot.send_message(message.from_user.id, LINK_PROBLEM)
+
+    if message.text == "":
+        pass
 
 
 async def mailing():
