@@ -7,14 +7,10 @@ from manager import *
 from message import *
 
 # aiogram
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.filters.command import Command
 from aiogram import Bot, Dispatcher, types
 from cfg.secret import TG_TOKEN
-
-from aiogram.types import ReplyKeyboardRemove, \
-    ReplyKeyboardMarkup, KeyboardButton, \
-    InlineKeyboardMarkup, InlineKeyboardButton
 
 # keyboard buttons
 days_btn = ReplyKeyboardMarkup(
@@ -32,7 +28,7 @@ dp = Dispatcher()
 
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
-    await message.answer(START_MESSAGE, reply_markup=days_btn)
+    await message.answer(START_MESSAGE)
 
 
 # main handler
@@ -46,7 +42,7 @@ async def handler(message: types.Message):
     if text.startswith(SIBSAU_LINK_TEMPLATE):
         try:
             await userCreateUpdate(id, text)
-            await bot.send_message(id, LINK_GET)
+            await bot.send_message(id, LINK_GET, reply_markup=days_btn)
         except:
             await bot.send_message(id, LINK_PROBLEM)
 

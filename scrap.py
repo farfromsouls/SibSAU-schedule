@@ -35,12 +35,19 @@ async def scrap(link, day):
             "Четверг", "Пятница", "Суббота"]
     days = re.findall("|".join(days), text)
 
+    # crop from (task day) to (task day+1)
     if day == "today":
         text = text[:text.find(days[0])]
-        text = text.replace("сегодняВремяДисциплина ", "")
     elif day == "tomorrow":
         text = text[text.find(days[0]):text.find(days[1])]
-        text = text[text.find("ВремяДисциплина ")+16:]
 
-    return text
+    text = text[text.find("ВремяДисциплина ")+16:]
 
+    time = re.findall(r"\d\d:\d\d-\d\d:\d\d", text)
+    lesson = re.split(r"\d\d:\d\d-\d\d:\d\d", text)[1:]
+    schedule = ''
+
+    for i in range(len(time)):
+        schedule += f'{time[i]}\n{lesson[i]}\n\n'
+
+    return schedule
