@@ -4,8 +4,8 @@ import re
 from message import *
 from bs4 import BeautifulSoup
 
-async def scrap(link, day):
 
+def problemCheck(link):
     # getting text and checking basic errors
     res = requests.get(SIBSAU_LINK_TEMPLATE + link)
     if res.status_code != 200:
@@ -20,13 +20,11 @@ async def scrap(link, day):
     elif title.startswith("404"):
         return "нет страницы"
 
+    return soup
 
-    # ---------------------------------- #
-    #           if no errors:
 
-    # formating text by words (from day=today to the end of 2 weeks)
-    text = soup.text.replace('\n', '')
-    text = re.sub(r'\s+', ' ', text)
+def one_day(text, day):
+    # unneeded ugly time -> delete it
     text = text[text.find("сегодня"):]
     text = re.sub(r"\d\d:\d\d\d\d:\d\d", "", text)
 
@@ -40,14 +38,41 @@ async def scrap(link, day):
         text = text[:text.find(days[0])]
     elif day == "tomorrow":
         text = text[text.find(days[0]):text.find(days[1])]
-
     text = text[text.find("ВремяДисциплина ")+16:]
 
+    # timing and lessons lists
     time = re.findall(r"\d\d:\d\d-\d\d:\d\d", text)
     lesson = re.split(r"\d\d:\d\d-\d\d:\d\d", text)[1:]
     schedule = ''
 
+    # formatting to "{time}:\n{lesson}\n"
     for i in range(len(time)):
-        schedule += f'{time[i]}\n{lesson[i]}\n\n'
+        schedule += f'{time[i]}:\n{lesson[i]}\n\n'
 
     return schedule
+
+def week(text, date):
+    return 0
+
+def scrap(link, date):
+
+    soup = problemCheck(link)
+    if soup in ["сайт упал", "нет страницы"]:
+        return soup
+
+    # if no server/link errors:
+    # formating text by words
+    text = soup.text.replace('\n', '')
+    text = re.sub(r'\s+', ' ', text)
+
+    # calling text-functions for task date
+    if date in ["today", "tomorrow"]:
+        schedule = one_day(text, date)
+
+    elif date in ["week1", "week2"]:
+        schedule = week(text, date)
+
+    return schedule
+
+
+print(scrap("group/13925", 'week1'))

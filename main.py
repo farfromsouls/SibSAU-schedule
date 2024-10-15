@@ -15,8 +15,10 @@ from cfg.secret import TG_TOKEN
 # keyboard buttons
 days_btn = ReplyKeyboardMarkup(
     keyboard=[
-        [KeyboardButton(text="Сегодня", callback_data="today")],
-        [KeyboardButton(text="Завтра", callback_data="next")]
+        [KeyboardButton(text="Сегодня")],
+        [KeyboardButton(text="Завтра")],
+        [KeyboardButton(text="1 Неделя (в разработке)")],
+        [KeyboardButton(text="2 Неделя (в разработке)")]
     ]
 )
 
@@ -46,7 +48,7 @@ async def handler(message: types.Message):
         except:
             await bot.send_message(id, LINK_PROBLEM)
 
-    # send schedule for today/tomorrow
+    # send schedule for today/tomorrow/1week/2week
     elif text in ["Сегодня", "Завтра"]:
         if text == "Сегодня":
             await bot.send_message(id, await getNow(id, "today"))
