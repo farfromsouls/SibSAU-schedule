@@ -49,11 +49,15 @@ async def handler(message: types.Message):
             await bot.send_message(id, LINK_PROBLEM)
 
     # send schedule for today/tomorrow/1week/2week
-    elif text in ["Сегодня", "Завтра"]:
+    elif text in ["Сегодня", "Завтра", "1 Неделя (в разработке)", "2 Неделя (в разработке)"]:
         if text == "Сегодня":
             await bot.send_message(id, await getNow(id, "today"))
         if text == "Завтра":
             await bot.send_message(id, await getNow(id, "tomorrow"))
+        if text == "1 Неделя (в разработке)":
+            await bot.send_message(id, await getNow(id, "week1"))
+        if text == "2 Неделя (в разработке)":
+            await bot.send_message(id, await getNow(id, "week2"))
 
 # start polling
 async def main():

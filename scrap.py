@@ -5,7 +5,7 @@ from message import *
 from bs4 import BeautifulSoup
 
 
-def problemCheck(link):
+async def problemCheck(link):
     # getting text and checking basic errors
     res = requests.get(SIBSAU_LINK_TEMPLATE + link)
     if res.status_code != 200:
@@ -23,7 +23,7 @@ def problemCheck(link):
     return soup
 
 
-def one_day(text, day):
+async def one_day(text, day):
     # unneeded ugly time -> delete it
     text = text[text.find("сегодня"):]
     text = re.sub(r"\d\d:\d\d\d\d:\d\d", "", text)
@@ -51,12 +51,14 @@ def one_day(text, day):
 
     return schedule
 
-def week(text, date):
-    return 0
 
-def scrap(link, date):
+async def week(text, date):
+    return '0'
 
-    soup = problemCheck(link)
+
+async def scrap(link, date):
+
+    soup = await problemCheck(link)
     if soup in ["сайт упал", "нет страницы"]:
         return soup
 
@@ -67,12 +69,9 @@ def scrap(link, date):
 
     # calling text-functions for task date
     if date in ["today", "tomorrow"]:
-        schedule = one_day(text, date)
+        schedule = await one_day(text, date)
 
     elif date in ["week1", "week2"]:
-        schedule = week(text, date)
+        schedule = await week(text, date)
 
     return schedule
-
-
-print(scrap("group/13925", 'week1'))
