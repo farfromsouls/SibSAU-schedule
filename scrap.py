@@ -40,7 +40,7 @@ async def scrap(link, day):
         text = text.replace("сегодняВремяДисциплина ", "")
     elif day == "tomorrow":
         text = text[text.find(days[0]):text.find(days[1])]
+        text = text[text.find("ВремяДисциплина ")+16:]
 
     return text
-
 
