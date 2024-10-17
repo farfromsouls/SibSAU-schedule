@@ -10,7 +10,7 @@ from message import *
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.filters.command import Command
 from aiogram import Bot, Dispatcher, types
-from .venv.secret import TG_TOKEN
+from secret import TG_TOKEN
 
 # keyboard buttons
 days_btn = ReplyKeyboardMarkup(
@@ -60,6 +60,8 @@ async def handler(message: types.Message):
             await bot.send_message(id, await getNow(id, "week2"))
 
 # start polling
+
+
 async def main():
     await dp.start_polling(bot)
 

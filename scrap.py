@@ -7,7 +7,8 @@ from datetime import datetime
 
 
 days = ["Понедельник", "Вторник", "Среда",
-    "Четверг", "Пятница", "Суббота", "Воскресенье"]
+        "Четверг", "Пятница", "Суббота", "Воскресенье"]
+
 
 async def problemCheck(link):
     # getting text and checking basic errors
@@ -62,8 +63,14 @@ async def one_day(text, day):
     if week.find(w_day_name[0]) == -1:
         return CHILL
     else:
-        text = text[text.find(w_day_name[0]):text.find(w_day_name[1])]
+        text = text[text.find(w_day_name[0]):]
         text = text[text.find("ВремяДисциплина ")+16:]
+
+        if text.find(w_day_name[1]) == -1:
+            text = text[:text.find("Понедельник")]
+        else:
+            text = text[:text.find(w_day_name[1])]
+
 
     # timing and lessons lists
     text = re.sub(r" \d\d:\d\d\d\d:\d\d ", "", text)
@@ -94,8 +101,6 @@ async def scrap(link, date):
         schedule = await one_day(text, date)
 
     elif date in ["week1", "week2"]:
-        schedule = 0
+        schedule = "0"
 
     return schedule
-
-
