@@ -1,10 +1,25 @@
-# sibsau_schedule
- 
-pip install aiogram
-pip install requests
-pip install beautifulsoup4
-pip install lxml
+## Run Locally
 
-import re
-import datetime
-import sqlite3
+Clone the project
+
+```bash
+  git clone  https://github.com/farfromsouls/SibSAU-schedule.git
+```
+
+Go to the project directory
+
+```bash
+  cd SibSAU-schedule
+```
+
+Install dependencies
+
+```bash
+  pip install beautifulsoup4, lxml, aiogram, requests
+```
+
+Start the server
+
+```bash
+  python main.py
+```
