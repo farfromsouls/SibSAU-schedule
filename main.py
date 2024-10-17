@@ -10,7 +10,7 @@ from message import *
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.filters.command import Command
 from aiogram import Bot, Dispatcher, types
-from cfg.secret import TG_TOKEN
+from .venv.secret import TG_TOKEN
 
 # keyboard buttons
 days_btn = ReplyKeyboardMarkup(
