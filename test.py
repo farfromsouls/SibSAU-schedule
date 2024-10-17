@@ -1,4 +1,5 @@
 import datetime
+
 def one_day(text, day):
     # unneeded ugly time -> delete it
     text = text[text.find("сегодня"):]
@@ -27,6 +28,3 @@ def one_day(text, day):
         schedule += f'{time[i]}:\n{lesson[i]}\n\n'
 
     return schedule
-
-
-
