@@ -6,7 +6,10 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 
 
-def problemCheck(link):
+days = ["Понедельник", "Вторник", "Среда",
+    "Четверг", "Пятница", "Суббота", "Воскресенье"]
+
+async def problemCheck(link):
     # getting text and checking basic errors
     try:
         res = requests.get(SIBSAU_LINK_TEMPLATE + link)
@@ -27,7 +30,7 @@ def problemCheck(link):
     return soup
 
 
-def week_name():
+async def week_name():
 
     today = datetime.today()
     first_september = datetime(today.year, 9, 1)
@@ -40,30 +43,44 @@ def week_name():
     return 1
 
 
-def weekday_name(day):
-    # находим нужный день недели
-    days = ["Понедельник", "Вторник", "Среда",
-            "Четверг", "Пятница", "Суббота"]
+async def weekday_name(day):
+    w_day_num = datetime.today().weekday()
 
-    # возвращает день недели (сегодня/завтра) на русском
+    # returns needed day and needed day+1 in Russian
     if day == "today":
-        return days[datetime.today().weekday()]
-    return days[datetime.today().weekday()+1]
+        return [days[w_day_num], days[w_day_num+1]]
+    return [days[w_day_num+1], days[w_day_num+2]]
 
 
-def one_day(text, day):
-    week = text.split("Понедельник")[week_name()]
-    if week.find(weekday_name(day)) == -1:
-        return "Это выходной, дружище :)"
+async def one_day(text, day):
+
+    # get 1 needed week with no losing "Понедельник"
+    week = "Понедельник" + text.split("Понедельник")[await week_name()]
+    w_day_name = await weekday_name(day)
+
+    # get 1 needed day
+    if week.find(w_day_name[0]) == -1:
+        return CHILL
     else:
-        
+        text = text[text.find(w_day_name[0]):text.find(w_day_name[1])]
+        text = text[text.find("ВремяДисциплина ")+16:]
+
+    # timing and lessons lists
+    text = re.sub(r" \d\d:\d\d\d\d:\d\d ", "", text)
+    time = re.findall(r"\d\d:\d\d-\d\d:\d\d", text)
+    lesson = re.split(r"\d\d:\d\d-\d\d:\d\d", text)[1:]
+    schedule = ''
+
+    # formatting to "{time}:\n{lesson}\n"
+    for i in range(len(time)):
+        schedule += f'{time[i]}:\n{lesson[i]}\n\n'
+
+    return schedule
 
 
+async def scrap(link, date):
 
-
-def scrap(link, date):
-
-    soup = problemCheck(link)
+    soup = await problemCheck(link)
     if soup in ["сайт упал", "нет страницы"]:
         return soup
 
@@ -74,7 +91,7 @@ def scrap(link, date):
 
     # calling text-functions for task date
     if date in ["today", "tomorrow"]:
-        schedule = one_day(text, date)
+        schedule = await one_day(text, date)
 
     elif date in ["week1", "week2"]:
         schedule = 0
@@ -82,5 +99,3 @@ def scrap(link, date):
     return schedule
 
 
-# print(scrap("group/13925", "tomorrow"))
-print(scrap("group/13925", "today"))
