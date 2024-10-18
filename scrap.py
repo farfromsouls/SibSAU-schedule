@@ -33,16 +33,16 @@ async def problemCheck(link):
 
 async def week_text(text, date = None):
 
-    today = datetime.today()
-    first_september = datetime(today.year, 9, 1)
-    days_difference = (today - first_september).days
-
     if date == "week1":
         return "Понедельник" + text.split("Понедельник")[1]
     elif date == "week2":
         x = "Понедельник" + text.split("Понедельник")[2]
         x = x[:x.find("Расписание сессии временно отсутствует")]
         return x
+
+    today = datetime.today()
+    first_september = datetime(today.year, 9, 1)
+    days_difference = (today - first_september).days
     
     # если текущая неделя четная, то 2, иначе 1
     w_num = ((days_difference // 7) + 1) % 2
