@@ -15,7 +15,7 @@ Go to the project directory
 Install dependencies
 
 ```bash
-  pip install beautifulsoup4, lxml, aiogram, requests
+  pip install beautifulsoup4 lxml aiogram requests
 ```
 
 Start the server
