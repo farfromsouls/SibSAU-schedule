@@ -31,17 +31,27 @@ async def problemCheck(link):
     return soup
 
 
-async def week_name():
+async def week_text(text, date = None):
 
     today = datetime.today()
     first_september = datetime(today.year, 9, 1)
     days_difference = (today - first_september).days
 
+    if date == "week1":
+        return "Понедельник" + text.split("Понедельник")[1]
+    elif date == "week2":
+        x = "Понедельник" + text.split("Понедельник")[2]
+        x = x[:x.find("Расписание сессии временно отсутствует")]
+        return x
+    
     # если текущая неделя четная, то 2, иначе 1
     w_num = ((days_difference // 7) + 1) % 2
     if w_num == 0:
-        return 2
-    return 1
+        w_num = 2
+    w_num = 1
+
+    return "Понедельник" + text.split("Понедельник")[w_num]
+
 
 
 async def weekday_name(day):
@@ -56,7 +66,7 @@ async def weekday_name(day):
 async def one_day(text, day):
 
     # get 1 needed week with no losing "Понедельник"
-    week = "Понедельник" + text.split("Понедельник")[await week_name()]
+    week = await week_text(text)
     w_day_name = await weekday_name(day)
 
     # get 1 needed day
@@ -85,6 +95,10 @@ async def one_day(text, day):
     return schedule
 
 
+async def week(text, date):
+    return await week_text(text, date)
+
+
 async def scrap(link, date):
 
     soup = await problemCheck(link)
@@ -101,6 +115,6 @@ async def scrap(link, date):
         schedule = await one_day(text, date)
 
     elif date in ["week1", "week2"]:
-        schedule = "0"
+        schedule = await week(text, date)
 
     return schedule
