@@ -37,23 +37,31 @@ async def session(text):
     return text
 
 
-async def week_text(text, date = None):
-    # if week button
-    if date in ["week1", "week2"]:
-        week = "Понедельник" + text.split("Понедельник")[int(date[-1])]
-        week = week[:week.find("Расписание сессии временно отсутствует")]
-        week = re.sub(r" \d\d:\d\d\d\d:\d\d ", "", week)
-        time = re.findall(r"\d\d:\d\d-\d\d:\d\d", week)
-        lesson = re.split(r"\d\d:\d\d-\d\d:\d\d", week)[1:]
-        schedule = ''
+# for week button
+async def week_text_WB(text, date):
+    week = "Понедельник" + text.split("Понедельник")[int(date[-1])]
+    week = week[:week.find("Расписание сессии временно")]
+    week = re.sub(r" \d\d:\d\d\d\d:\d\d ", "", week)
 
+    w_days = re.findall(r'|'.join(days), week)
+    w_days_content = re.split(r'|'.join(days), week)[1:]
+
+    schedule = ''
+
+    for w_day in range(len(w_days)):
+        time = re.findall(r"\d\d:\d\d-\d\d:\d\d", w_days_content[w_day])
+        lesson = re.split(r"\d\d:\d\d-\d\d:\d\d", w_days_content[w_day])[1:]
+        schedule += " "*15 + f"{w_days[w_day]}:\n\n"
+        
         # formatting to "{time}:\n{lesson}\n"
         for i in range(len(time)):
             schedule += f'{time[i]}:\n{lesson[i]}\n\n'
 
-        return f'\n{schedule}'
+    return f'\n{schedule}'
 
-    # for "one_day" func if not week button
+
+# for one day
+async def week_text_OD(text, date = None):
     if date == "today":
         day = datetime.today()
     else:
@@ -62,13 +70,11 @@ async def week_text(text, date = None):
     first_september = datetime(day.year, 9, 2)
     days_difference = (day - first_september).days
     
-    # если текущая неделя четная, то 2, иначе 1
+    # если нужная неделя четная, то 2, иначе 1
     w_num = ((days_difference // 7)+1) % 2
 
     if w_num == 0:
         w_num = 2
-
-    print(w_num)
 
     return ("Понедельник" + text.split("Понедельник")[w_num])
 
@@ -84,7 +90,7 @@ async def weekday_name(day):
 
 async def one_day(text, day):
     # get 1 needed week with no losing "Понедельник"
-    week = await week_text(text, day)
+    week = await week_text_OD(text, day)
     w_day_name = await weekday_name(day)
 
     # if chill:
@@ -129,7 +135,7 @@ async def scrap(link, date):
         schedule = await one_day(text, date)
 
     elif date in ["week1", "week2"]:
-        schedule = await week_text(text, date)
+        schedule = await week_text_WB(text, date)
 
     elif date == "session":
         schedule = await session(text)
