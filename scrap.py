@@ -3,12 +3,11 @@ import re
 
 from message import *
 from bs4 import BeautifulSoup
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 days = ["Понедельник", "Вторник", "Среда",
         "Четверг", "Пятница", "Суббота", "Воскресенье"]
-
 
 async def problemCheck(link):
     # getting text and checking basic errors
@@ -31,27 +30,47 @@ async def problemCheck(link):
     return soup
 
 
+async def session(text):
+
+    text = text[text.find("Расписание сессии временно"):]
+    text = text[:text.find("Сведения об образовательной организации")]
+    return text
+
+
 async def week_text(text, date = None):
+    # if week button
+    if date in ["week1", "week2"]:
+        week = "Понедельник" + text.split("Понедельник")[int(date[-1])]
+        week = week[:week.find("Расписание сессии временно отсутствует")]
+        week = re.sub(r" \d\d:\d\d\d\d:\d\d ", "", week)
+        time = re.findall(r"\d\d:\d\d-\d\d:\d\d", week)
+        lesson = re.split(r"\d\d:\d\d-\d\d:\d\d", week)[1:]
+        schedule = ''
 
-    if date == "week1":
-        return "Понедельник" + text.split("Понедельник")[1]
-    elif date == "week2":
-        x = "Понедельник" + text.split("Понедельник")[2]
-        x = x[:x.find("Расписание сессии временно отсутствует")]
-        return x
+        # formatting to "{time}:\n{lesson}\n"
+        for i in range(len(time)):
+            schedule += f'{time[i]}:\n{lesson[i]}\n\n'
 
-    today = datetime.today()
-    first_september = datetime(today.year, 9, 1)
-    days_difference = (today - first_september).days
+        return f'\n{schedule}'
+
+    # for "one_day" func if not week button
+    if date == "today":
+        day = datetime.today()
+    else:
+        day = datetime.today() + timedelta(days=1)
+
+    first_september = datetime(day.year, 9, 2)
+    days_difference = (day - first_september).days
     
     # если текущая неделя четная, то 2, иначе 1
-    w_num = ((days_difference // 7) + 1) % 2
+    w_num = ((days_difference // 7)+1) % 2
+
     if w_num == 0:
         w_num = 2
-    w_num = 1
 
-    return "Понедельник" + text.split("Понедельник")[w_num]
+    print(w_num)
 
+    return ("Понедельник" + text.split("Понедельник")[w_num])
 
 
 async def weekday_name(day):
@@ -59,44 +78,39 @@ async def weekday_name(day):
 
     # returns needed day and needed day+1 in Russian
     if day == "today":
-        return [days[w_day_num], days[w_day_num+1]]
-    return [days[w_day_num+1], days[w_day_num+2]]
+        return [days[w_day_num], days[(w_day_num+1)%7]]
+    return [days[(w_day_num+1)%7], days[(w_day_num+2)%7]]
 
 
 async def one_day(text, day):
-
     # get 1 needed week with no losing "Понедельник"
-    week = await week_text(text)
+    week = await week_text(text, day)
     w_day_name = await weekday_name(day)
 
-    # get 1 needed day
+    # if chill:
     if week.find(w_day_name[0]) == -1:
-        return CHILL
+        return f"{w_day_name[0]}:\n\n"+CHILL
+    
+    # if not chill
+    day_t = week[week.find(w_day_name[0]):]
+    day_t = day_t[day_t.find("ВремяДисциплина ")+16:]
+
+    if day_t.find(w_day_name[1]) == -1:
+        day_t = day_t[:day_t.find("Понедельник")]
     else:
-        text = text[text.find(w_day_name[0]):]
-        text = text[text.find("ВремяДисциплина ")+16:]
-
-        if text.find(w_day_name[1]) == -1:
-            text = text[:text.find("Понедельник")]
-        else:
-            text = text[:text.find(w_day_name[1])]
-
+        day_t = day_t[:day_t.find(w_day_name[1])]
 
     # timing and lessons lists
-    text = re.sub(r" \d\d:\d\d\d\d:\d\d ", "", text)
-    time = re.findall(r"\d\d:\d\d-\d\d:\d\d", text)
-    lesson = re.split(r"\d\d:\d\d-\d\d:\d\d", text)[1:]
+    day_t = re.sub(r" \d\d:\d\d\d\d:\d\d ", "", day_t)
+    time = re.findall(r"\d\d:\d\d-\d\d:\d\d", day_t)
+    lesson = re.split(r"\d\d:\d\d-\d\d:\d\d", day_t)[1:]
     schedule = ''
 
     # formatting to "{time}:\n{lesson}\n"
     for i in range(len(time)):
         schedule += f'{time[i]}:\n{lesson[i]}\n\n'
 
-    return schedule
-
-
-async def week(text, date):
-    return await week_text(text, date)
+    return f'{w_day_name[0]}:\n\n{schedule}'
 
 
 async def scrap(link, date):
@@ -115,6 +129,9 @@ async def scrap(link, date):
         schedule = await one_day(text, date)
 
     elif date in ["week1", "week2"]:
-        schedule = await week(text, date)
+        schedule = await week_text(text, date)
+
+    elif date == "session":
+        schedule = await session(text)
 
     return schedule

@@ -13,14 +13,18 @@ from aiogram import Bot, Dispatcher, types
 from secret import TG_TOKEN
 
 # keyboard buttons
-days_btn = ReplyKeyboardMarkup(
-    keyboard=[
-        [KeyboardButton(text="Сегодня")],
-        [KeyboardButton(text="Завтра")],
-        [KeyboardButton(text="1 Неделя")],
-        [KeyboardButton(text="2 Неделя")]
-    ]
-)
+today_b = KeyboardButton(text="Сегодня")
+tomorrow_b = KeyboardButton(text="Завтра")
+week1_b = KeyboardButton(text="1 Неделя")
+week2_b = KeyboardButton(text="2 Неделя")
+session_b = KeyboardButton(text="Сессия")
+
+days_btn = ReplyKeyboardMarkup(keyboard=[
+    [today_b, week1_b],
+    [tomorrow_b, week2_b],
+    [session_b]
+])
+
 
 # connecting to "bot"
 logging.basicConfig(level=logging.INFO)
@@ -40,24 +44,26 @@ async def handler(message: types.Message):
     id = message.from_user.id
     text = message.text
 
+    # today/tomorrow/week1/week2/session tasks
+    if text == "Сегодня":
+        await bot.send_message(id, await getNow(id, "today"))
+    elif text == "Завтра":
+        await bot.send_message(id, await getNow(id, "tomorrow"))
+    elif text == "1 Неделя":
+        await bot.send_message(id, await getNow(id, "week1"))
+    elif text == "2 Неделя":
+        await bot.send_message(id, await getNow(id, "week2"))
+    elif text == "Сессия":
+        await bot.send_message(id, await getNow(id, "session"))
+
     # updeate/create link to the user
-    if text.startswith(SIBSAU_LINK_TEMPLATE):
+    elif text.startswith(SIBSAU_LINK_TEMPLATE):
         try:
             await userCreateUpdate(id, text)
             await bot.send_message(id, LINK_GET, reply_markup=days_btn)
         except:
             await bot.send_message(id, LINK_PROBLEM)
 
-    # send schedule for today/tomorrow/1week/2week
-    elif text in ["Сегодня", "Завтра", "1 Неделя", "2 Неделя"]:
-        if text == "Сегодня":
-            await bot.send_message(id, await getNow(id, "today"))
-        if text == "Завтра":
-            await bot.send_message(id, await getNow(id, "tomorrow"))
-        if text == "1 Неделя":
-            await bot.send_message(id, await getNow(id, "week1"))
-        if text == "2 Неделя":
-            await bot.send_message(id, await getNow(id, "week2"))
 
 # start polling
 async def main():

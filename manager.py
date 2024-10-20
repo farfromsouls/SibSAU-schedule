@@ -1,5 +1,5 @@
-from scrap import *
-from data import *
+from scrap import scrap
+from data import getLink, crt_upd
 
 
 # main(got link from id) -> userCreateUpdate() -> data/crt_upd(id, link)
