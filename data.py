@@ -11,13 +11,16 @@ async def crt_upd(tg_id, link):
     # getting "(group/professor)/(number)""
     link_id = link.split("/")
     link_id = f'{link_id[-2]}/{link_id[-1]}'
-    data = (tg_id, link_id, 0)
+    print(link_id)
+    data_insert = (tg_id, link_id, 0)
+    data_update = (link_id, tg_id)
+
 
     # adding/updating link in db
     try:
-        cursor.execute('INSERT INTO users (tg_id, link, mailing) VALUES(?, ?, ?)', data)
+        cursor.execute('INSERT INTO users (tg_id, link, mailing) VALUES(?, ?, ?)', data_insert)
     except:
-        cursor.execute('UPDATE users SET link = ? WHERE tg_id = ?', data[::-1])
+        cursor.execute('UPDATE users SET link = ? WHERE tg_id = ?', data_update)
 
     conn.commit()
 

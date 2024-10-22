@@ -18,14 +18,14 @@ from secret import TG_TOKEN
 # keyboard buttons #1
 today_b = KeyboardButton(text="Сегодня")
 tomorrow_b = KeyboardButton(text="Завтра")
-week1_b = KeyboardButton(text="1 Неделя")
-week2_b = KeyboardButton(text="2 Неделя")
+week1_b = KeyboardButton(text="1-я неделя")
+week2_b = KeyboardButton(text="2-я неделя")
 session_b = KeyboardButton(text="Сессия")
 mailing_b = KeyboardButton(text="Рассылка")
 
 main_btn = ReplyKeyboardMarkup(keyboard=[
-    [today_b, week1_b],
-    [tomorrow_b, week2_b],
+    [today_b, tomorrow_b],
+    [week1_b, week2_b],
     [session_b, mailing_b]
 ])
 
@@ -64,9 +64,9 @@ async def handler(message: types.Message):
         await bot.send_message(id, await getNow(id, "today"))
     elif text == "Завтра":
         await bot.send_message(id, await getNow(id, "tomorrow"))
-    elif text == "1 Неделя":
+    elif text == "1-я неделя":
         await bot.send_message(id, await getNow(id, "week1"))
-    elif text == "2 Неделя":
+    elif text == "2-я неделя":
         await bot.send_message(id, await getNow(id, "week2"))
     elif text == "Сессия":
         await bot.send_message(id, await getNow(id, "session"))
@@ -97,7 +97,7 @@ async def handler(message: types.Message):
             ])
             mailing_text = "отключить"
 
-        await bot.send_message(id, f"Хотите {mailing_text} ежедневную рассылку?", 
+        await bot.send_message(id, f"Хотите {mailing_text} ежедневную рассылку с расписанием на завтра? Расписание приходит в 21:00", 
                                 reply_markup=mailing_btn)
     
     # turn off/on mailing

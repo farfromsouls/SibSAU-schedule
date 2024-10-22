@@ -8,24 +8,26 @@ from datetime import datetime, timedelta
 
 days = ["Понедельник", "Вторник", "Среда",
         "Четверг", "Пятница", "Суббота", "Воскресенье"]
+problems = ["Сайт упал, либо отсутствует нужная страница",
+            "Страницы не существует"]
 
 async def problemCheck(link):
     # getting text and checking basic errors
     try:
         res = requests.get(SIBSAU_LINK_TEMPLATE + link)
         if res.status_code != 200:
-            return "сайт упал"
+            return problems[0]
     except:
-        return "сайт упал"
+        return problems[0]
 
     soup = BeautifulSoup(res.text, "lxml")
     title = soup.find("title").text
 
     # check for link errors
     if title == "Internal Server Error":
-        return "нет страницы"
+        return problems[1]
     elif title.startswith("404"):
-        return "нет страницы"
+        return problems[1]
 
     return soup
 
@@ -39,6 +41,7 @@ async def session(text):
 
 # for week button
 async def week_text_WB(text, date):
+
     week = "Понедельник" + text.split("Понедельник")[int(date[-1])]
     week = week[:week.find("Расписание сессии временно")]
     week = re.sub(r" \d\d:\d\d\d\d:\d\d ", "", week)
@@ -62,6 +65,7 @@ async def week_text_WB(text, date):
 
 # for one day
 async def week_text_OD(text, date = None):
+
     if date == "today":
         day = datetime.today()
     else:
@@ -80,6 +84,7 @@ async def week_text_OD(text, date = None):
 
 
 async def weekday_name(day):
+
     w_day_num = datetime.today().weekday()
 
     # returns needed day and needed day+1 in Russian
@@ -122,7 +127,7 @@ async def one_day(text, day):
 async def scrap(link, date):
 
     soup = await problemCheck(link)
-    if soup in ["сайт упал", "нет страницы"]:
+    if soup in problems:
         return soup
 
     # if no server/link errors:
