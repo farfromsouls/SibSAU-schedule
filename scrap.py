@@ -1,149 +1,69 @@
-import requests
-import re
-
-from message import *
-from bs4 import BeautifulSoup
+from lxml import etree
 from datetime import datetime, timedelta
-
 
 days = ["Понедельник", "Вторник", "Среда",
         "Четверг", "Пятница", "Суббота", "Воскресенье"]
-problems = ["Сайт упал, либо отсутствует нужная страница",
-            "Страницы не существует"]
 
-async def problemCheck(link):
-    # getting text and checking basic errors
-    try:
-        res = requests.get(SIBSAU_LINK_TEMPLATE + link)
-        if res.status_code != 200:
-            return problems[0]
-    except:
-        return problems[0]
+async def weekday_name(date): # for "today" or "tomorrow"
+    w_day = datetime.today().weekday()
+    if date == "today":
+        return days[w_day]
+    return days[(w_day+1)%7]
 
-    soup = BeautifulSoup(res.text, "lxml")
-    title = soup.find("title").text
-
-    # check for link errors
-    if title == "Internal Server Error":
-        return problems[1]
-    elif title.startswith("404"):
-        return problems[1]
-
-    return soup
-
-
-async def session(text):
-
-    text = text[text.find("Расписание сессии временно"):]
-    text = text[:text.find("Сведения об образовательной организации")]
-    return text
-
-
-# for week button
-async def week_text_WB(text, date):
-
-    week = "Понедельник" + text.split("Понедельник")[int(date[-1])]
-    week = week[:week.find("Расписание сессии временно")]
-    week = re.sub(r" \d\d:\d\d\d\d:\d\d ", "", week)
-
-    w_days = re.findall(r'|'.join(days), week)
-    w_days_content = re.split(r'|'.join(days), week)[1:]
-
-    schedule = ''
-
-    for w_day in range(len(w_days)):
-        time = re.findall(r"\d\d:\d\d-\d\d:\d\d", w_days_content[w_day])
-        lesson = re.split(r"\d\d:\d\d-\d\d:\d\d", w_days_content[w_day])[1:]
-        schedule += " "*15 + f"{w_days[w_day]}:\n\n"
-        
-        # formatting to "{time}:\n{lesson}\n"
-        for i in range(len(time)):
-            schedule += f'{time[i]}:\n{lesson[i]}\n\n'
-
-    return f'\n{schedule}'
-
-# for one day
-async def week_text_OD(text, date = None):
-
+async def week_num(date): # week number from 2 september
+    
     if date == "today":
         day = datetime.today()
-    else:
+    elif date == "tomorrow":
         day = datetime.today() + timedelta(days=1)
 
     first_september = datetime(day.year, 9, 2)
     days_difference = (day - first_september).days
     
     # если нужная неделя четная, то 2, иначе 1
-    w_num = ((days_difference // 7)+1) % 2
-
+    w_num = ((days_difference // 7) + 1) % 2
     if w_num == 0:
         w_num = 2
+    return w_num
 
-    return ("Понедельник" + text.split("Понедельник")[w_num])
+async def get_day(page, date):
 
+    weekday = await weekday_name(date)
+    w_num = await week_num(date)
 
-async def weekday_name(day):
+    tree = etree.HTML(page)
+    days_xpath = etree.XPath(f'//*[@id="week_{w_num}_tab"]/div')
+    days_elements = days_xpath(tree)
+    day = None
 
-    w_day_num = datetime.today().weekday()
+    for day_elem in days_elements:
+        day_name = day_elem.xpath('./div[1]/div[1]/div/text()')
+        day_name = day_name[0].replace(" ", "").replace("\n", "")
 
-    # returns needed day and needed day+1 in Russian
-    if day == "today":
-        return [days[w_day_num], days[(w_day_num+1)%7]]
-    return [days[(w_day_num+1)%7], days[(w_day_num+2)%7]]
+        if day_name == weekday:
+            day = day_elem
+            break
 
+    if day == None:
+        return "Это выходной :)"
 
-async def one_day(text, day):
-    # get 1 needed week with no losing "Понедельник"
-    week = await week_text_OD(text, day)
-    w_day_name = await weekday_name(day)
+    lessons = day.xpath('./div[2]/div')
+    answer = ""
 
-    # if chill:
-    if week.find(w_day_name[0]) == -1:
-        return f"{w_day_name[0]}:\n\n"+CHILL
-    
-    # if not chill
-    day_t = week[week.find(w_day_name[0]):]
-    day_t = day_t[day_t.find("ВремяДисциплина ")+16:]
+    for lesson in lessons:
+        start = lesson.xpath('./div[1]/div[2]/text()[1]')[0].replace(" ", "").replace("\n", "")
+        end = lesson.xpath('./div[1]/div[2]/text()[2]')[0].replace(" ", "").replace("\n", "")
+        name = lesson.xpath('./div[2]/div/div/ul/li[1]/span/text()')[0]
+        type = lesson.xpath('./div[2]/div/div/ul/li[1]/text()')[0]
+        professor = lesson.xpath('./div[2]/div/div/ul/li[2]/a/text()')[0]
+        room = lesson.xpath('./div[2]/div/div/ul/li[3]/a/text()')[0]
 
-    if day_t.find(w_day_name[1]) == -1:
-        day_t = day_t[:day_t.find("Понедельник")]
-        day_t = day_t[:day_t.find("Расписание сессии временно отсутствует")]
-    else:
-        day_t = day_t[:day_t.find(w_day_name[1])]
+        answer += " "*10 + f"{start}-{end}\n{name} {type}\n{professor}\n{room}\n\n"
 
+    return answer
 
-    # timing and lessons lists
-    day_t = re.sub(r" \d\d:\d\d\d\d:\d\d ", "", day_t)
-    time = re.findall(r"\d\d:\d\d-\d\d:\d\d", day_t)
-    lesson = re.split(r"\d\d:\d\d-\d\d:\d\d", day_t)[1:]
-    schedule = ''
+async def get_session(page):
+    return "Расписание сессии временно недоступно"
 
-    # formatting to "{time}:\n{lesson}\n"
-    for i in range(len(time)):
-        schedule += f'{time[i]}:\n{lesson[i]}\n\n'
-
-    return f'{w_day_name[0]}:\n\n{schedule}'
-
-
-async def scrap(link, date):
-
-    soup = await problemCheck(link)
-    if soup in problems:
-        return soup
-
-    # if no server/link errors:
-    # formating text by words
-    text = soup.text.replace('\n', '')
-    text = re.sub(r'\s+', ' ', text)
-
-    # calling text-functions for task date
-    if date in ["today", "tomorrow"]:
-        schedule = await one_day(text, date)
-
-    elif date in ["week1", "week2"]:
-        schedule = await week_text_WB(text, date)
-
-    elif date == "session":
-        schedule = await session(text)
-
-    return schedule
+async def get_week(page, week):
+    return "Расписание на неделю временно недоступно"

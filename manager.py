@@ -1,4 +1,4 @@
-from scrapv2 import *
+from scrap import *
 from data import *
 from bs4 import BeautifulSoup
 from message import SIBSAU_LINK_TEMPLATE
@@ -29,6 +29,9 @@ async def schedule(tg_id, date):
     link = await getLink(tg_id)
     page = await problemCheck(link)
 
+    if date == "session":
+        schedule = "Рсписание сессии временно недоступно"
+
     if page in problems:
         return page
 
@@ -38,8 +41,6 @@ async def schedule(tg_id, date):
         schedule = await get_day(page, date)
     elif date in ["week1", "week2"]:
         schedule = await get_week(page, date)
-    elif date == "session":
-        schedule = "Рсписание сессии временно недоступно"
 
     return schedule
 
