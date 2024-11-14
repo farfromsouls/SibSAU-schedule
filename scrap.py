@@ -62,7 +62,6 @@ async def week_text_WB(text, date):
 
     return f'\n{schedule}'
 
-
 # for one day
 async def week_text_OD(text, date = None):
 
@@ -108,8 +107,10 @@ async def one_day(text, day):
 
     if day_t.find(w_day_name[1]) == -1:
         day_t = day_t[:day_t.find("Понедельник")]
+        day_t = day_t[:day_t.find("Расписание сессии временно отсутствует")]
     else:
         day_t = day_t[:day_t.find(w_day_name[1])]
+
 
     # timing and lessons lists
     day_t = re.sub(r" \d\d:\d\d\d\d:\d\d ", "", day_t)

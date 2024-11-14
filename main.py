@@ -27,7 +27,7 @@ main_btn = ReplyKeyboardMarkup(keyboard=[
     [today_b, tomorrow_b],
     [week1_b, week2_b],
     [session_b, mailing_b]
-])
+], resize_keyboard=True)
 
 # keyboard buttons #2
 mailing_off = KeyboardButton(text="Отключить")
@@ -61,15 +61,15 @@ async def handler(message: types.Message):
 
     # today/tomorrow/week1/week2/session tasks
     if text == "Сегодня":
-        await bot.send_message(id, await getNow(id, "today"))
+        await bot.send_message(id, await schedule(id, "today"))
     elif text == "Завтра":
-        await bot.send_message(id, await getNow(id, "tomorrow"))
+        await bot.send_message(id, await schedule(id, "tomorrow"))
     elif text == "1-я неделя":
-        await bot.send_message(id, await getNow(id, "week1"))
+        await bot.send_message(id, await schedule(id, "week1"))
     elif text == "2-я неделя":
-        await bot.send_message(id, await getNow(id, "week2"))
+        await bot.send_message(id, await schedule(id, "week2"))
     elif text == "Сессия":
-        await bot.send_message(id, await getNow(id, "session"))
+        await bot.send_message(id, await schedule(id, "session"))
 
     # updeate/create link to the user
     elif is_sibsau_link:
@@ -79,7 +79,6 @@ async def handler(message: types.Message):
         except:
             await bot.send_message(id, LINK_PROBLEM)
 
-
     # asking turn off/on mailing
     elif text == "Рассылка":
 
@@ -88,17 +87,15 @@ async def handler(message: types.Message):
         if mailing == 0:
             mailing_btn = ReplyKeyboardMarkup(keyboard=[
                 [mailing_cancel, mailing_on]
-            ])
+            ], resize_keyboard=True)
             mailing_text = "включить"
-
-        elif mailing == 1:
+        else:
             mailing_btn = ReplyKeyboardMarkup(keyboard=[
                 [mailing_cancel, mailing_off]
-            ])
+            ], resize_keyboard=True)
             mailing_text = "отключить"
 
-        await bot.send_message(id, f"Хотите {mailing_text} ежедневную рассылку с расписанием на завтра? Расписание приходит в 21:00", 
-                                reply_markup=mailing_btn)
+        await bot.send_message(id, f"Хотите {mailing_text}"+MAILING,  reply_markup=mailing_btn)
     
     # turn off/on mailing
     elif text in ["Отключить", "Включить", "Отмена"]:
@@ -106,20 +103,21 @@ async def handler(message: types.Message):
         if text == "Отключить":
             mailing = 0
             ans = await userUpdateMailing(id, mailing)
-
         elif text == "Включить":
             mailing = 1
             ans = await userUpdateMailing(id, mailing)
-
-        elif text == "Отмена":
+        else:
             ans = 'Возврат в меню'
 
         await bot.send_message(id, ans, reply_markup=main_btn)
 
+    else:
+        await bot.send_message(id, UNKNOWN, reply_markup=main_btn)
+
 async def mailing():
     mailing_ids = await mailingUsers()
     for id in mailing_ids:
-        await bot.send_message(id[0], await getNow(id[0], "tomorrow"))
+        await bot.send_message(id[0], await schedule(id[0], "tomorrow"))
 
 # start polling
 async def main():

@@ -1,17 +1,49 @@
-from scrap import scrap
+from scrapv2 import *
 from data import *
+from bs4 import BeautifulSoup
+from message import SIBSAU_LINK_TEMPLATE
+import requests
 
+problems = ["Сайт упал, либо отсутствует нужная страница",
+            "Страницы не существует"]
 
-# main(got link from id) -> userCreateUpdate() -> data/crt_upd(id, link)
-async def userCreateUpdate(tg_id, link):
-    await crt_upd(tg_id, link)
+async def problemCheck(link):
+    # getting text and checking basic errors
+    try:
+        res = requests.get(SIBSAU_LINK_TEMPLATE + link)
+        if res.status_code != 200:
+            return problems[0]
+    except:
+        return problems[0]
+    soup = BeautifulSoup(res.text, "html.parser")
+    title = soup.find("title").text
+    # check for link errors
+    if title == "Internal Server Error":
+        return problems[1]
+    elif title.startswith("404"):
+        return problems[1]
+    return res.text
 
-# main(today/tomorrow button) -> getNow() -> scrap(data/getLink(id), day)
-async def getNow(tg_id, date):
+# main -> getNow() -> scrap(data/getLink(id), date)
+async def schedule(tg_id, date):
     link = await getLink(tg_id)
-    schedule = await scrap(link, date)
+    page = await problemCheck(link)
+
+    if page in problems:
+        return page
+
+    # if no server/link errors:
+    # calling functions for task date
+    if date in ["today", "tomorrow"]:
+        schedule = await get_day(page, date)
+    elif date in ["week1", "week2"]:
+        schedule = await get_week(page, date)
+    elif date == "session":
+        schedule = "Рсписание сессии временно недоступно"
+
     return schedule
 
+# DB connections 
 async def userGetMailing(id):
     mailing = await getMailingStatus(id)
     return mailing
@@ -21,3 +53,7 @@ async def userUpdateMailing(id, mailing):
 
 async def mailingUsers():
     return await getMailingUsers()
+
+# main(got link from id) -> userCreateUpdate() -> data/crt_upd(id, link)
+async def userCreateUpdate(tg_id, link):
+    await crt_upd(tg_id, link)
