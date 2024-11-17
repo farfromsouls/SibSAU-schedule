@@ -27,6 +27,11 @@ async def getLink(tg_id):
     link = cursor.fetchone()[0]
     return link
 
+async def getAllMailingGroups():
+    cursor.execute('SELECT link FROM Users WHERE mailing = 1')
+    mailingGroups = cursor.fetchall()
+    return mailingGroups
+
 async def getMailingStatus(tg_id):
     cursor.execute('SELECT mailing FROM Users WHERE tg_id = ?', (tg_id,))
     mailingStatus = cursor.fetchone()[0]
@@ -39,6 +44,6 @@ async def updateMailingStatus(tg_id, mailing):
     return "Успешно!"
 
 async def getMailingUsers():
-    cursor.execute('SELECT tg_id FROM Users WHERE mailing = 1')
+    cursor.execute('SELECT tg_id, link FROM Users WHERE mailing = 1')
     mailingUsers = cursor.fetchall()
     return mailingUsers

@@ -25,8 +25,10 @@ async def problemCheck(link):
     return res.text
 
 # main -> getNow() -> scrap(data/getLink(id), date)
-async def schedule(tg_id, date):
-    link = await getLink(tg_id)
+async def schedule(link, tg_id, date):
+
+    if tg_id != None:
+        link = await getLink(tg_id)
     page = await problemCheck(link)
 
     if date == "session":

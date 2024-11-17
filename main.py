@@ -6,6 +6,7 @@ import re
 # sripts connecting
 from manager import *
 from message import *
+from mailing import *
 
 # aiogram
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
@@ -116,13 +117,15 @@ async def handler(message: types.Message):
 
 async def mailing():
     mailing_ids = await mailingUsers()
+    mailing_data = await mailingData()
+
     for id in mailing_ids:
-        await bot.send_message(id[0], await schedule(id[0], "tomorrow"))
+        await bot.send_message(id[0], mailing_data[id[1]])
 
 # start polling
 async def main():
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(mailing, "cron", hour="21", minute="00")
+    scheduler.add_job(mailing, "cron", hour="19", minute="43")
     scheduler.start()
     await dp.start_polling(bot)
 
