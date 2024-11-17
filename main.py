@@ -62,15 +62,15 @@ async def handler(message: types.Message):
 
     # today/tomorrow/week1/week2/session tasks
     if text == "Сегодня":
-        await bot.send_message(id, await schedule(id, "today"))
+        await bot.send_message(id, await schedule(tg_id=id, date="today"))
     elif text == "Завтра":
-        await bot.send_message(id, await schedule(id, "tomorrow"))
+        await bot.send_message(id, await schedule(tg_id=id, date="tomorrow"))
     elif text == "1-я неделя":
-        await bot.send_message(id, await schedule(id, "week1"))
+        await bot.send_message(id, await schedule(tg_id=id, date="week1"))
     elif text == "2-я неделя":
-        await bot.send_message(id, await schedule(id, "week2"))
+        await bot.send_message(id, await schedule(tg_id=id, date="week2"))
     elif text == "Сессия":
-        await bot.send_message(id, await schedule(id, "session"))
+        await bot.send_message(id, await schedule(tg_id=id, date="session"))
 
     # updeate/create link to the user
     elif is_sibsau_link:
