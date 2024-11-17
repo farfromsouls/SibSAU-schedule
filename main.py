@@ -74,10 +74,13 @@ async def handler(message: types.Message):
 
     # updeate/create link to the user
     elif is_sibsau_link:
-        try:
+        link_id = text.split("/")
+        link_id = f'{link_id[-2]}/{link_id[-1]}'
+        link_test = await problemCheck(link_id)
+        if link_test not in problems:
             await userCreateUpdate(id, text)
             await bot.send_message(id, LINK_GET, reply_markup=main_btn)
-        except:
+        else:
             await bot.send_message(id, LINK_PROBLEM)
 
     # asking turn off/on mailing
@@ -125,7 +128,7 @@ async def mailing():
 # start polling
 async def main():
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(mailing, "cron", hour="19", minute="43")
+    scheduler.add_job(mailing, "cron", hour="20", minute="20")
     scheduler.start()
     await dp.start_polling(bot)
 

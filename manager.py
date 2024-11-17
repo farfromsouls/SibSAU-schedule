@@ -43,7 +43,6 @@ async def schedule(date, tg_id, link=None):
         schedule = await get_day(page, date)
     elif date in ["week1", "week2"]:
         schedule = await get_week(page, date)
-
     return schedule
 
 # DB connections 
