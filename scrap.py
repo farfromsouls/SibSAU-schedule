@@ -43,27 +43,62 @@ async def get_day(page, date):
         if day_name == weekday:
             day = day_elem
             break
-
     if day == None:
         return "Это выходной :)"
 
-    lessons = day.xpath('./div[2]/div')
+    return await parse(day, weekday)
+
+async def get_week(page, week):
+    w_num = week[-1]
+    
+    tree = etree.HTML(page)
+    days_xpath = etree.XPath(f'//*[@id="week_{w_num}_tab"]/div')
+    days_elements = days_xpath(tree)
     answer = ""
 
-    for lesson in lessons:
-        start = lesson.xpath('./div[1]/div[2]/text()[1]')[0].replace(" ", "").replace("\n", "")
-        end = lesson.xpath('./div[1]/div[2]/text()[2]')[0].replace(" ", "").replace("\n", "")
-        name = lesson.xpath('./div[2]/div/div/ul/li[1]/span/text()')[0]
-        type = lesson.xpath('./div[2]/div/div/ul/li[1]/text()')[0]
-        professor = lesson.xpath('./div[2]/div/div/ul/li[2]/a/text()')[0]
-        room = lesson.xpath('./div[2]/div/div/ul/li[3]/a/text()')[0]
+    for day_elem in days_elements:
 
-        answer += " "*10 + f"{start}-{end}\n{name} {type}\n{professor}\n{room}\n\n"
+        day_name = day_elem.xpath('./div[1]/div[1]/div/text()')
+        day_name = day_name[0].replace(" ", "").replace("\n", "")
 
+        answer += await parse(day_elem, day_name)
+                
     return answer
 
 async def get_session(page):
     return "Расписание сессии временно недоступно"
 
-async def get_week(page, week):
-    return "Расписание на неделю временно недоступно"
+async def parse(day, day_name):
+    lessons = day.xpath('./div[2]/div')
+    answer = f"——————— {day_name} ———————\n\n"
+    
+    for lesson in lessons:
+        start = lesson.xpath('./div[1]/div[2]/text()[1]')[0].replace(" ", "").replace("\n", "")
+        end = lesson.xpath('./div[1]/div[2]/text()[2]')[0].replace(" ", "").replace("\n", "")
+
+        if len(lesson.xpath('./div[2]/div/div')) == 1:  # if 1 group
+            name = lesson.xpath('./div[2]/div/div/ul/li[1]/span/text()')[0]
+            type = lesson.xpath('./div[2]/div/div/ul/li[1]/text()')[0]
+            professor = lesson.xpath('./div[2]/div/div/ul/li[2]/a/text()')[0]
+            room = lesson.xpath('./div[2]/div/div/ul/li[3]/a/text()')[0]
+            group = ""
+
+            # if lesson only for 1 subgroup
+            if len(lesson.xpath('./div[2]/div/div/ul/li')) == 4:
+                group = f"{lesson.xpath('./div[2]/div/div/ul/li[4]/text()')[0]}\n"
+            answer += " "*10 + f"{start}-{end}\n{name}{type}\n{professor}\n{room}\n{group}\n"
+
+        else:  # if 2 subgroups in 1 lesson
+
+            answer += " "*10 + f"{start}-{end}\n"
+
+            for i in [1, 2]:
+                name = lesson.xpath(f'./div[2]/div/div[{i}]/ul/li[2]/span/text()')[0]
+                type = lesson.xpath(f'./div[2]/div/div[{i}]/ul/li[2]/text()')[0]
+                professor = lesson.xpath(f'./div[2]/div/div[{i}]/ul/li[3]/a/text()')[0]
+                room = lesson.xpath(f'./div[2]/div/div[{i}]/ul/li[4]/a/text()')[0]
+                group = lesson.xpath(f'./div[2]/div/div[{i}]/ul/li[1]/text()')[0]
+
+                answer += f"{name}{type}\n{professor}\n{room}\n{group}\n\n"
+    
+    return answer

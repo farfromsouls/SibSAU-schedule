@@ -95,7 +95,7 @@ async def handler(message: types.Message):
             ], resize_keyboard=True)
             mailing_text = "отключить"
 
-        await bot.send_message(id, f"Хотите {mailing_text}"+MAILING,  reply_markup=mailing_btn)
+        await bot.send_message(id, f"Хотите {mailing_text} "+MAILING,  reply_markup=mailing_btn)
     
     # turn off/on mailing
     elif text in ["Отключить", "Включить", "Отмена"]:
