@@ -142,7 +142,7 @@ async def mailing():
 
 async def main():
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(mailing, "cron", hour="20", minute="20")
+    scheduler.add_job(mailing, "cron", hour="21", minute="10")
     scheduler.start()
     await dp.start_polling(bot)
 
