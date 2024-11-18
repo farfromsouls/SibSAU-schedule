@@ -12,21 +12,6 @@ import asyncio
 import logging
 import re
 
-# Устанавливаем соединение с базой данных
-connection = sqlite3.connect('cfg/data2.sqlite3')
-cursor = connection.cursor()
-
-# Создаем таблицу Users
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS users (
-tg_id TEXT PRIMARY KEY,
-link TEXT,
-mailing SMALLINT,
-last_message DATETIME
-)
-''')
-connection.close()
-
 # sripts connecting
 from manager import *
 from message import *

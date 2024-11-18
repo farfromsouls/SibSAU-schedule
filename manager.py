@@ -30,7 +30,7 @@ async def schedule(date, tg_id, link=None):
     timer = await getLastTime(tg_id=tg_id, date_time=datetime.datetime.utcnow() 
                                          + timedelta(hours=7))
     if timer == False:
-        return "Подождите несколько секунд"
+        return "Подождите 3 секунды до повторного запроса"
 
     if tg_id != None:
         link = await getLink(tg_id)
