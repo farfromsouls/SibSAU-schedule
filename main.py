@@ -58,19 +58,23 @@ async def handler(message: types.Message):
         is_sibsau_link = text.startswith(SIBSAU_LINK_TEMPLATE)
     except:
         is_sibsau_link = False
-        await bot.send_message(id, "Некорректный запрос")
 
     # today/tomorrow/week1/week2/session tasks
     if text == "Сегодня":
         await bot.send_message(id, await schedule(tg_id=id, date="today"))
+        pass
     elif text == "Завтра":
         await bot.send_message(id, await schedule(tg_id=id, date="tomorrow"))
+        pass
     elif text == "1-я неделя":
         await bot.send_message(id, await schedule(tg_id=id, date="week1"))
+        pass
     elif text == "2-я неделя":
         await bot.send_message(id, await schedule(tg_id=id, date="week2"))
+        pass
     elif text == "Сессия":
         await bot.send_message(id, await schedule(tg_id=id, date="session"))
+        pass
 
     # updeate/create link to the user
     elif is_sibsau_link:
@@ -80,8 +84,10 @@ async def handler(message: types.Message):
         if link_test not in problems:
             await userCreateUpdate(id, text)
             await bot.send_message(id, LINK_GET, reply_markup=main_btn)
+            pass
         else:
             await bot.send_message(id, LINK_PROBLEM)
+            pass
 
     # asking turn off/on mailing
     elif text == "Рассылка":
@@ -100,6 +106,7 @@ async def handler(message: types.Message):
             mailing_text = "отключить"
 
         await bot.send_message(id, f"Хотите {mailing_text} "+MAILING,  reply_markup=mailing_btn)
+        pass
     
     # turn off/on mailing
     elif text in ["Отключить", "Включить", "Отмена"]:
@@ -114,6 +121,7 @@ async def handler(message: types.Message):
             ans = 'Возврат в меню'
 
         await bot.send_message(id, ans, reply_markup=main_btn)
+        pass
 
     else:
         await bot.send_message(id, UNKNOWN, reply_markup=main_btn)

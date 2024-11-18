@@ -29,11 +29,8 @@ async def schedule(date, tg_id, link=None):
 
     if tg_id != None:
         link = await getLink(tg_id)
+
     page = await problemCheck(link)
-
-    if date == "session":
-        schedule = "Рсписание сессии временно недоступно"
-
     if page in problems:
         return page
 
@@ -41,9 +38,14 @@ async def schedule(date, tg_id, link=None):
     # calling functions for task date
     if date in ["today", "tomorrow"]:
         schedule = await get_day(page, date)
+        return schedule
     elif date in ["week1", "week2"]:
         schedule = await get_week(page, date)
+        return schedule
+    elif date == "session":
+        schedule = "Расписание сессии временно недоступно"
     return schedule
+
 
 # DB connections 
 async def userGetMailing(id):
