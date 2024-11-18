@@ -5,7 +5,8 @@ days = ["Понедельник", "Вторник", "Среда",
         "Четверг", "Пятница", "Суббота", "Воскресенье"]
 
 async def weekday_name(date): # for "today" or "tomorrow"
-    w_day = datetime.today().weekday()
+    utc_now = datetime.utcnow() + timedelta(hours=7)
+    w_day = utc_now.weekday()
     if date == "today":
         return days[w_day]
     return days[(w_day+1)%7]
@@ -13,9 +14,9 @@ async def weekday_name(date): # for "today" or "tomorrow"
 async def week_num(date): # week number from 2 september
     
     if date == "today":
-        day = datetime.today()
+        day = datetime.utcnow() + timedelta(hours=7)
     elif date == "tomorrow":
-        day = datetime.today() + timedelta(days=1)
+        day = datetime.utcnow() + timedelta(days=1, hours=7)
 
     first_september = datetime(day.year, 9, 2)
     days_difference = (day - first_september).days
@@ -65,10 +66,11 @@ async def get_week(page, week):
                 
     return answer
 
-async def get_session(page):
+async def get_session():
     return "Расписание сессии временно недоступно"
 
 async def parse(day, day_name):
+
     lessons = day.xpath('./div[2]/div')
     answer = f"——————— {day_name} ———————\n\n"
     

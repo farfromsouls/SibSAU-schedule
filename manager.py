@@ -27,6 +27,11 @@ async def problemCheck(link):
 # main -> getNow() -> scrap(data/getLink(id), date)
 async def schedule(date, tg_id, link=None):
 
+    timer = await getLastTime(tg_id=tg_id, date_time=datetime.datetime.utcnow() 
+                                         + timedelta(hours=7))
+    if timer == False:
+        return "Подождите несколько секунд"
+
     if tg_id != None:
         link = await getLink(tg_id)
 
@@ -43,9 +48,7 @@ async def schedule(date, tg_id, link=None):
         schedule = await get_week(page, date)
         return schedule
     elif date == "session":
-        schedule = "Расписание сессии временно недоступно"
-    return schedule
-
+        return "Расписание сессии временно недоступно"
 
 # DB connections 
 async def userGetMailing(id):

@@ -1,10 +1,10 @@
 import sqlite3
+import datetime
 
 # connecting to db
 db_path = 'cfg/data.sqlite3'
 conn = sqlite3.connect(db_path)
 cursor = conn.cursor()
-
 
 async def crt_upd(tg_id, link):
 
@@ -26,6 +26,19 @@ async def getLink(tg_id):
     cursor.execute('SELECT link FROM Users WHERE tg_id = ?', (tg_id,))
     link = cursor.fetchone()[0]
     return link
+
+async def getLastTime(tg_id, date_time):
+    cursor.execute('SELECT last_message FROM Users WHERE tg_id = ?', (tg_id,))
+    last_message = cursor.fetchone()[0]
+
+    if last_message != None:
+        last_message = datetime.datetime.strptime(last_message, '%Y-%m-%d %H:%M:%S.%f')
+        delta = date_time - last_message
+
+    if (last_message == None) or (delta.seconds > 3):
+        cursor.execute('UPDATE users SET last_message = ? WHERE tg_id = ?', (date_time, tg_id))
+        return True
+    return False
 
 async def getAllMailingGroups():
     cursor.execute('SELECT link FROM Users WHERE mailing = 1')
