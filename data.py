@@ -30,7 +30,12 @@ async def getLink(tg_id):
 
 async def getLastTime(tg_id, date_time):
     cursor.execute('SELECT last_message FROM Users WHERE tg_id = ?', (tg_id,))
-    last_message = cursor.fetchone()[0]
+
+    try:
+        last_message = cursor.fetchone()[0]
+    except:
+        cursor.execute('UPDATE users SET last_message = ? WHERE tg_id = ?', (date_time, tg_id))
+        return True
 
     if last_message != None:
         last_message = datetime.datetime.strptime(last_message, '%Y-%m-%d %H:%M:%S.%f')
