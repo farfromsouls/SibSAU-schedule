@@ -8,6 +8,23 @@ from manager import *
 from message import *
 from mailing import *
 
+import sqlite3
+
+# Устанавливаем соединение с базой данных
+connection = sqlite3.connect('cfg/data2.sqlite3')
+cursor = connection.cursor()
+
+# Создаем таблицу Users
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS users (
+tg_id TEXT PRIMARY KEY,
+link TEXT,
+mailing SMALLINT,
+last_message DATETIME
+)
+''')
+connection.close()
+
 # aiogram
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.filters.command import Command
@@ -15,6 +32,8 @@ from aiogram import Bot, Dispatcher, types
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from secret import TG_TOKEN
+
+
 
 # keyboard buttons #1
 today_b = KeyboardButton(text="Сегодня")
