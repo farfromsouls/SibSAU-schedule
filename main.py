@@ -1,14 +1,16 @@
 # basic imports
+from secret import TG_TOKEN
+
+# aiogram
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from aiogram import Bot, Dispatcher, types
+from aiogram.filters.command import Command
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+
+import sqlite3
 import asyncio
 import logging
 import re
-
-# sripts connecting
-from manager import *
-from message import *
-from mailing import *
-
-import sqlite3
 
 # Устанавливаем соединение с базой данных
 connection = sqlite3.connect('cfg/data2.sqlite3')
@@ -25,13 +27,10 @@ last_message DATETIME
 ''')
 connection.close()
 
-# aiogram
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from aiogram.filters.command import Command
-from aiogram import Bot, Dispatcher, types
-
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from secret import TG_TOKEN
+# sripts connecting
+from manager import *
+from message import *
+from mailing import *
 
 
 
@@ -126,7 +125,7 @@ async def handler(message: types.Message):
 
         await bot.send_message(id, f"Хотите {mailing_text} "+MAILING,  reply_markup=mailing_btn)
         pass
-    
+
     # turn off/on mailing
     elif text in ["Отключить", "Включить", "Отмена"]:
 
@@ -145,6 +144,7 @@ async def handler(message: types.Message):
     else:
         await bot.send_message(id, UNKNOWN, reply_markup=main_btn)
 
+
 async def mailing():
     mailing_ids = await mailingUsers()
     mailing_data = await mailingData()
@@ -153,6 +153,8 @@ async def mailing():
         await bot.send_message(id[0], mailing_data[id[1]])
 
 # start polling
+
+
 async def main():
     scheduler = AsyncIOScheduler()
     scheduler.add_job(mailing, "cron", hour="20", minute="20")
