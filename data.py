@@ -25,7 +25,10 @@ async def crt_upd(tg_id, link):
 async def getLink(tg_id):
     # searching link in db using user tg_id
     cursor.execute('SELECT link FROM Users WHERE tg_id = ?', (tg_id,))
-    link = cursor.fetchone()[0]
+    try:
+        link = cursor.fetchone()[0]
+    except:
+        return 0
     return link
 
 async def getLastTime(tg_id, date_time):
@@ -53,7 +56,10 @@ async def getAllMailingGroups():
 
 async def getMailingStatus(tg_id):
     cursor.execute('SELECT mailing FROM Users WHERE tg_id = ?', (tg_id,))
-    mailingStatus = cursor.fetchone()[0]
+    try:
+        mailingStatus = cursor.fetchone()[0]
+    except:
+        return 0
     return mailingStatus
 
 async def updateMailingStatus(tg_id, mailing):
