@@ -1,6 +1,3 @@
-# basic imports
-from secret import TG_TOKEN
-
 # aiogram
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from aiogram import Bot, Dispatcher, types
@@ -16,8 +13,6 @@ import re
 from manager import *
 from message import *
 from mailing import *
-
-
 
 # keyboard buttons #1
 today_b = KeyboardButton(text="Сегодня")
@@ -37,7 +32,7 @@ main_btn = ReplyKeyboardMarkup(keyboard=[
 mailing_off = KeyboardButton(text="Отключить")
 mailing_on = KeyboardButton(text="Включить")
 mailing_cancel = KeyboardButton(text="Отмена")
-
+TG_TOKEN = "7961932170:AAHLrSQNeIIQ1O0J2XkjPYDO9flrRQ1Y11Q"
 
 # connecting to "bot"
 logging.basicConfig(level=logging.INFO)
@@ -142,7 +137,7 @@ async def mailing():
 
 async def main():
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(mailing, "cron", hour="21", minute="30", timezone="Asia/Krasnoyarsk")
+    scheduler.add_job(mailing, "cron", hour="21", minute="00", timezone="Asia/Krasnoyarsk")
     scheduler.start()
     await dp.start_polling(bot)
 
