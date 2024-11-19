@@ -32,7 +32,7 @@ main_btn = ReplyKeyboardMarkup(keyboard=[
 mailing_off = KeyboardButton(text="Отключить")
 mailing_on = KeyboardButton(text="Включить")
 mailing_cancel = KeyboardButton(text="Отмена")
-TG_TOKEN = "7961932170:AAHLrSQNeIIQ1O0J2XkjPYDO9flrRQ1Y11Q"
+TG_TOKEN = "7454936274:AAEAXueep9LWZZ9TN1YNaMMpcTVTDUJeipk"
 
 # connecting to "bot"
 logging.basicConfig(level=logging.INFO)
