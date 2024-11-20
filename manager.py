@@ -35,6 +35,9 @@ async def schedule(date, tg_id, link=None):
     if tg_id != None:
         link = await getLink(tg_id)
 
+    if link == 0:
+        return "Ссылка не найдена, используйте команду /start"
+
     page = await problemCheck(link)
     if page in problems:
         return page

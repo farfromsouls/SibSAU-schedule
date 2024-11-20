@@ -4,10 +4,8 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.filters.command import Command
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
-import sqlite3
 import asyncio
 import logging
-import re
 
 # sripts connecting
 from manager import *
@@ -39,11 +37,9 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TG_TOKEN)
 dp = Dispatcher()
 
-
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message):
     await message.answer(START_MESSAGE)
-
 
 # main handler
 @dp.message()
@@ -124,7 +120,6 @@ async def handler(message: types.Message):
     else:
         await bot.send_message(id, UNKNOWN, reply_markup=main_btn)
 
-
 async def mailing():
     mailing_ids = await mailingUsers()
     mailing_data = await mailingData()
@@ -133,8 +128,6 @@ async def mailing():
         await bot.send_message(id[0], mailing_data[id[1]])
 
 # start polling
-
-
 async def main():
     scheduler = AsyncIOScheduler()
     scheduler.add_job(mailing, "cron", hour="21", minute="00", timezone="Asia/Krasnoyarsk")

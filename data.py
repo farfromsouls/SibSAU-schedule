@@ -5,7 +5,6 @@ import datetime
 db_path = 'cfg/data.sqlite3'
 conn = sqlite3.connect(db_path)
 cursor = conn.cursor()
-ROBERT = True # в дань благодарности за сломанного бота 
 
 async def crt_upd(tg_id, link):
 
