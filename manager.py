@@ -51,7 +51,7 @@ async def schedule(date, tg_id, link=None):
         schedule = await get_week(page, date)
         return schedule
     elif date == "session":
-        return "Расписание сессии временно недоступно"
+        return await get_session(page)
 
 # DB connections 
 async def userGetMailing(id):

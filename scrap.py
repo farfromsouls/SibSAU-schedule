@@ -66,8 +66,29 @@ async def get_week(page, week):
                 
     return answer
 
-async def get_session():
-    return "Расписание сессии временно недоступно"
+async def get_session(page):
+    page = etree.HTML(page)
+    session = etree.XPath(f'//*[@id="session_tab"]/div')
+    if len(session(page)) == 0:
+        return "Расписание сессии временно недоступно"
+    
+    ans = ""
+    for exam in range(len(session(page))):
+        date = etree.XPath(f'//*[@id="session_tab"]/div[{exam+1}]/div[1]/div[1]/div/text()')
+        start = etree.XPath(f'///*[@id="session_tab"]/div[{exam+1}]/div[2]/div/div[1]/div/text()[2]')
+        name = etree.XPath(f'//*[@id="session_tab"]/div[{exam+1}]/div[2]/div/div[2]/div/div/ul/li[1]/span/text()')
+        professor = etree.XPath(f'//*[@id="session_tab"]/div[{exam+1}]/div[2]/div/div[2]/div/div/ul/li[2]/a/text()')
+        room = etree.XPath(f'//*[@id="session_tab"]/div[{exam+1}]/div[2]/div/div[2]/div/div/ul/li[3]/a/text()')
+        
+        date = date(page)[0].replace(" ", "").replace("\n", "")
+        start = start(page)[0].replace(" ", "").replace("\n", "")
+        name = name(page)[0].replace("\n", "")
+        professor = professor(page)[0].replace("\n", "")
+        room = room(page)[0].replace("\n", "")
+        
+        ans += f"——————— {date} ———————\n{start}\n{name}\n{professor}\n{room}\n\n\n"
+
+    return ans
 
 async def parse(day, day_name):
 
