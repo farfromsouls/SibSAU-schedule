@@ -11,6 +11,7 @@ import logging
 from manager import *
 from message import *
 from mailing import *
+from secret import TG_TOKEN
 
 # keyboard buttons #1
 today_b = KeyboardButton(text="Сегодня")
@@ -30,7 +31,6 @@ main_btn = ReplyKeyboardMarkup(keyboard=[
 mailing_off = KeyboardButton(text="Отключить")
 mailing_on = KeyboardButton(text="Включить")
 mailing_cancel = KeyboardButton(text="Отмена")
-TG_TOKEN = "7454936274:AAEAXueep9LWZZ9TN1YNaMMpcTVTDUJeipk"
 
 # connecting to "bot"
 logging.basicConfig(level=logging.INFO)
